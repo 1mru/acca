@@ -1,0 +1,6 @@
+rule compile
+  command = g++ -municode -mwindows $in -o $out
+
+build build/acca.exe: compile main.cpp
+
+default build/acca.exe

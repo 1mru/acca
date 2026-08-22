@@ -12,11 +12,10 @@ LRESULT CALLBACK WindowProc(
       PostQuitMessage(0);
       return 0;
     }
+
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-
-      // All painting occurs here, between BeginPaint and EndPaint.
 
       FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
 
@@ -25,30 +24,35 @@ LRESULT CALLBACK WindowProc(
     }
   }
 
-  return DefWindowProc(hwnd, uMsg, wParam, lParam);
+  return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
-  // Register the window class.
+int WINAPI wWinMain(
+  HINSTANCE hInstance,
+  HINSTANCE,
+  PWSTR,
+  int nCmdShow
+) {
   const wchar_t CLASS_NAME[] = L"acca";
-  WNDCLASS wc = {};
+
+  WNDCLASSW wc = {};
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
-  RegisterClass(&wc);
 
-  // Create the window.
-  HWND hwnd = CreateWindowEx(
-    0,                             // Optional window styles
-    CLASS_NAME,                    // Window class
-    CLASS_NAME,                    // Window text
-    WS_OVERLAPPEDWINDOW,           // Window style
-    CW_USEDEFAULT, CW_USEDEFAULT,  // Position (X, Y)
-    800, 600,                      // Size (Width, Height)
-    nullptr,                       // Parent window
-    nullptr,                       // Menu
-    hInstance,                     // Instance handle
-    nullptr                        // Additional application data
+  RegisterClassW(&wc);
+
+  HWND hwnd = CreateWindowExW(
+    0,
+    CLASS_NAME,
+    CLASS_NAME,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    800, 600,
+    nullptr,
+    nullptr,
+    hInstance,
+    nullptr
   );
 
   if (hwnd == nullptr) return 0;
@@ -56,9 +60,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
   ShowWindow(hwnd, nCmdShow);
 
   MSG msg = {};
-  while (GetMessage(&msg, nullptr, 0, 0) > 0) {
+
+  while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
     TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    DispatchMessageW(&msg);
   }
 
   return 0;
