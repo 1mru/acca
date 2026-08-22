@@ -1,7 +1,4 @@
-﻿#ifndef UNICODE
-#define UNICODE
-#endif
-
+﻿#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 LRESULT CALLBACK WindowProc(
@@ -13,8 +10,8 @@ LRESULT CALLBACK WindowProc(
 
 int WINAPI wWinMain(
   HINSTANCE hInstance,
-  HINSTANCE hPrevInstance,
-  PWSTR pCmdLine,
+  HINSTANCE,
+  PWSTR,
   int nCmdShow
 ) {
   // Register the window class.
@@ -23,29 +20,28 @@ int WINAPI wWinMain(
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
-
   RegisterClass(&wc);
 
   // Create the window.
   HWND hwnd = CreateWindowEx(
     0,                             // Optional window styles
     CLASS_NAME,                    // Window class
-    CLASS_NAME,               // Window text
+    CLASS_NAME,                    // Window text
     WS_OVERLAPPEDWINDOW,           // Window style
     CW_USEDEFAULT, CW_USEDEFAULT,  // Position (X, Y)
-    CW_USEDEFAULT, CW_USEDEFAULT,  // Size (Width, Height)
-    NULL,                          // Parent window
-    NULL,                          // Menu
+    800, 600,                      // Size (Width, Height)
+    nullptr,                          // Parent window
+    nullptr,                          // Menu
     hInstance,                     // Instance handle
-    NULL  // Additional application data
+    nullptr                           // Additional application data
   );
 
-  if (hwnd == NULL) return 0;
+  if (hwnd == nullptr) return 0;
 
   ShowWindow(hwnd, nCmdShow);
 
   MSG msg = {};
-  while (GetMessage(&msg, NULL, 0, 0) > 0) {
+  while (GetMessage(&msg, nullptr, 0, 0) > 0) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
