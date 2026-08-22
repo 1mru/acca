@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="acca/acca.vcxproj" Id="01d68705-67e5-491b-8e58-38aa2850ccf6" />
-</Solution>
