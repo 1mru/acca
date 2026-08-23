@@ -34,8 +34,8 @@ LRESULT CALLBACK WindowProc(
           HIWORD(lParam),
           TRUE
         );
-        return 0;
       }
+      return 0;
     }
   }
 
