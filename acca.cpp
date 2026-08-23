@@ -2,17 +2,16 @@
 #include <windows.h>
 
 LRESULT CALLBACK WindowProc(
-	HWND hwnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam
+  HWND hwnd,
+  UINT uMsg,
+  WPARAM wParam,
+  LPARAM lParam
 ) {
   switch (uMsg) {
     case WM_DESTROY: {
       PostQuitMessage(0);
       return 0;
     }
-
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
@@ -28,30 +27,77 @@ LRESULT CALLBACK WindowProc(
 }
 
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
+int WINAPI wWinMain(
+  HINSTANCE hInstance,
+  HINSTANCE,
+  PWSTR,
+  int nCmdShow
+) {
   const wchar_t CLASS_NAME[] = L"acca";
 
+  // Set up the window class.
   WNDCLASSW wc = {};
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
 
+  // Register the window class with Windows.
   RegisterClassW(&wc);
 
+  // Main window
   HWND hwnd = CreateWindowExW(
+    0,                              // Extended window style
+    CLASS_NAME,                     // Window class name
+    CLASS_NAME,                     // Window name
+    WS_OVERLAPPEDWINDOW,            // Window style
+    CW_USEDEFAULT, CW_USEDEFAULT,   // Position
+    800, 600,                       // Size
+    nullptr,                        // Handle to parent window
+    nullptr,                        // Handle to menu
+    hInstance,                      // Handle to instance
+    nullptr                         // lpParam
+  );
+
+  if (hwnd == nullptr) return 0;
+
+
+  // Scintilla DLL
+  HMODULE hmod = LoadLibraryW(L"Scintilla.dll");
+  if (hmod == nullptr) {
+    MessageBoxW(
+      hwnd,
+      L"The Scintilla DLL could not be loaded",
+      L"Error loading Scintilla",
+      MB_OK | MB_ICONERROR
+    );
+
+    return 0;
+  }
+
+  // Scintilla editor
+  HWND hwndScintilla = CreateWindowExW(
     0,
-    CLASS_NAME,
-    CLASS_NAME,
-    WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT, CW_USEDEFAULT,
-    800, 600,
-    nullptr,
+    L"Scintilla",
+    L"",
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
+    10, 10,
+    500, 400,
+    hwnd,
     nullptr,
     hInstance,
     nullptr
   );
+  if (hwndScintilla == nullptr) {
+    MessageBoxW(
+      hwnd,
+      L"Could not create Scintilla window",
+      L"Error",
+      MB_OK | MB_ICONERROR
+    );
 
-  if (hwnd == nullptr) return 0;
+    return 0;
+  }
+
 
   ShowWindow(hwnd, nCmdShow);
 
@@ -61,6 +107,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
+
+  FreeLibrary(hmod);
 
   return 0;
 }
