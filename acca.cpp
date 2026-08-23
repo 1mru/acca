@@ -6,7 +6,30 @@
 
 #include "include/Scintilla.h"
 
+
+// Menu IDs
+#define IDM_FILE_NEW          1001
+#define IDM_FILE_OPEN         1002
+#define IDM_FILE_SAVE         1003
+#define IDM_FILE_SAVE_AS      1004
+#define IDM_FILE_EXIT         1005
+
+#define IDM_EDIT_UNDO         1101
+#define IDM_EDIT_REDO         1102
+#define IDM_EDIT_CUT          1103
+#define IDM_EDIT_COPY         1104
+#define IDM_EDIT_PASTE        1105
+#define IDM_EDIT_DELETE       1106
+#define IDM_EDIT_SELECT_ALL   1107
+
+#define IDM_VIEW_LINE_NUMBERS 1201
+#define IDM_VIEW_STATUS_BAR   1202
+
+#define IDM_HELP_ABOUT        1301
+
+
 HWND hwndScintilla = nullptr;
+
 
 LRESULT CALLBACK WindowProc(
   HWND hwnd,
@@ -15,38 +38,149 @@ LRESULT CALLBACK WindowProc(
   LPARAM lParam
 ) {
   switch (uMsg) {
-    case WM_DESTROY: {
-      PostQuitMessage(0);
-      return 0;
-    }
-    case WM_PAINT: {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
 
-      FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+  case WM_DESTROY: {
+    PostQuitMessage(0);
+    return 0;
+  }
 
-      EndPaint(hwnd, &ps);
-      return 0;
+
+  case WM_SIZE: {
+    if (hwndScintilla != nullptr) {
+      MoveWindow(
+        hwndScintilla,
+        0,
+        0,
+        LOWORD(lParam),
+        HIWORD(lParam),
+        TRUE
+      );
     }
-    case WM_SIZE: {
-      if (hwndScintilla != nullptr) {
-        MoveWindow(
-          hwndScintilla,
-          0, 0,
-          LOWORD(lParam),
-          HIWORD(lParam),
-          TRUE
-        );
-      }
-      return 0;
+
+    return 0;
+  }
+
+
+  case WM_COMMAND: {
+    switch (LOWORD(wParam)) {
+
+    // File
+    case IDM_FILE_NEW:
+      // TODO: Create a new document.
+      break;
+
+    case IDM_FILE_OPEN:
+      // TODO: Open a file.
+      break;
+
+    case IDM_FILE_SAVE:
+      // TODO: Save the current file.
+      break;
+
+    case IDM_FILE_SAVE_AS:
+      // TODO: Save the current file under a new name.
+      break;
+
+    case IDM_FILE_EXIT:
+      DestroyWindow(hwnd);
+      break;
+
+
+    // Edit
+    case IDM_EDIT_UNDO:
+      SendMessageW(
+        hwndScintilla,
+        SCI_UNDO,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_REDO:
+      SendMessageW(
+        hwndScintilla,
+        SCI_REDO,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_CUT:
+      SendMessageW(
+        hwndScintilla,
+        SCI_CUT,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_COPY:
+      SendMessageW(
+        hwndScintilla,
+        SCI_COPY,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_PASTE:
+      SendMessageW(
+        hwndScintilla,
+        SCI_PASTE,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_DELETE:
+      SendMessageW(
+        hwndScintilla,
+        SCI_CLEAR,
+        0,
+        0
+      );
+      break;
+
+    case IDM_EDIT_SELECT_ALL:
+      SendMessageW(
+        hwndScintilla,
+        SCI_SELECTALL,
+        0,
+        0
+      );
+      break;
+
+
+    // View
+    case IDM_VIEW_LINE_NUMBERS:
+      // TODO: Toggle line numbers.
+      break;
+
+    case IDM_VIEW_STATUS_BAR:
+      // TODO: Toggle status bar.
+      break;
+
+
+    // Help
+    case IDM_HELP_ABOUT:
+      MessageBoxW(
+        hwnd,
+        L"acca\nSimple source code editor",
+        L"About acca",
+        MB_OK | MB_ICONINFORMATION
+      );
+      break;
     }
+
+    return 0;
+  }
   }
 
   return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
 
-// エントリーポイント
+// Entry point
 int WINAPI wWinMain(
   HINSTANCE hInstance,
   HINSTANCE,
@@ -55,32 +189,218 @@ int WINAPI wWinMain(
 ) {
   const wchar_t CLASS_NAME[] = L"acca";
 
-  // ウィンドウクラスを登録
+
+  // Register window class.
   WNDCLASSW wc = {};
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
+
   RegisterClassW(&wc);
 
-  // メインウィンドウを作成
+
+  // Create main window.
   HWND hwnd = CreateWindowExW(
-    0,                              // Extended window style
-    CLASS_NAME,                     // Window class name
-    CLASS_NAME,                     // Window name
-    WS_OVERLAPPEDWINDOW,            // Window style
-    CW_USEDEFAULT, CW_USEDEFAULT,   // Position
-    800, 600,                       // Size
-    nullptr,                        // Handle to parent window
-    nullptr,                        // Handle to menu
-    hInstance,                      // Handle to instance
-    nullptr                         // lpParam
+    0,
+    CLASS_NAME,
+    CLASS_NAME,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT,
+    CW_USEDEFAULT,
+    800,
+    600,
+    nullptr,
+    nullptr,
+    hInstance,
+    nullptr
   );
 
-  if (hwnd == nullptr) return 0;
+  if (hwnd == nullptr) {
+    return 0;
+  }
 
 
-  // Scintilla DLLをロード
+  // Create the menu bar.
+  HMENU hMenu = CreateMenu();
+
+
+  // File menu.
+  HMENU hFileMenu = CreatePopupMenu();
+
+  AppendMenuW(
+    hFileMenu,
+    MF_STRING,
+    IDM_FILE_NEW,
+    L"New"
+  );
+
+  AppendMenuW(
+    hFileMenu,
+    MF_STRING,
+    IDM_FILE_OPEN,
+    L"Open..."
+  );
+
+  AppendMenuW(
+    hFileMenu,
+    MF_STRING,
+    IDM_FILE_SAVE,
+    L"Save"
+  );
+
+  AppendMenuW(
+    hFileMenu,
+    MF_STRING,
+    IDM_FILE_SAVE_AS,
+    L"Save As..."
+  );
+
+  AppendMenuW(
+    hFileMenu,
+    MF_SEPARATOR,
+    0,
+    nullptr
+  );
+
+  AppendMenuW(
+    hFileMenu,
+    MF_STRING,
+    IDM_FILE_EXIT,
+    L"Exit"
+  );
+
+  AppendMenuW(
+    hMenu,
+    MF_POPUP,
+    (UINT_PTR)hFileMenu,
+    L"File"
+  );
+
+
+  // Edit menu.
+  HMENU hEditMenu = CreatePopupMenu();
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_UNDO,
+    L"Undo"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_REDO,
+    L"Redo"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_SEPARATOR,
+    0,
+    nullptr
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_CUT,
+    L"Cut"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_COPY,
+    L"Copy"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_PASTE,
+    L"Paste"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_DELETE,
+    L"Delete"
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_SEPARATOR,
+    0,
+    nullptr
+  );
+
+  AppendMenuW(
+    hEditMenu,
+    MF_STRING,
+    IDM_EDIT_SELECT_ALL,
+    L"Select All"
+  );
+
+  AppendMenuW(
+    hMenu,
+    MF_POPUP,
+    (UINT_PTR)hEditMenu,
+    L"Edit"
+  );
+
+
+  // View menu.
+  HMENU hViewMenu = CreatePopupMenu();
+
+  AppendMenuW(
+    hViewMenu,
+    MF_STRING,
+    IDM_VIEW_LINE_NUMBERS,
+    L"Line Numbers"
+  );
+
+  AppendMenuW(
+    hViewMenu,
+    MF_STRING,
+    IDM_VIEW_STATUS_BAR,
+    L"Status Bar"
+  );
+
+  AppendMenuW(
+    hMenu,
+    MF_POPUP,
+    (UINT_PTR)hViewMenu,
+    L"View"
+  );
+
+
+  // Help menu.
+  HMENU hHelpMenu = CreatePopupMenu();
+
+  AppendMenuW(
+    hHelpMenu,
+    MF_STRING,
+    IDM_HELP_ABOUT,
+    L"About acca"
+  );
+
+  AppendMenuW(
+    hMenu,
+    MF_POPUP,
+    (UINT_PTR)hHelpMenu,
+    L"Help"
+  );
+
+
+  // Set the menu bar.
+  SetMenu(hwnd, hMenu);
+
+
+  // Load Scintilla DLL.
   HMODULE hmod = LoadLibraryW(L"Scintilla.dll");
+
   if (hmod == nullptr) {
     MessageBoxW(
       hwnd,
@@ -92,19 +412,26 @@ int WINAPI wWinMain(
     return 0;
   }
 
-  // Scintilla editorを作成
+
+  // Create Scintilla editor.
   hwndScintilla = CreateWindowExW(
     0,
     L"Scintilla",
     L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
-    0, 0,
-    0, 0,
+    WS_CHILD |
+    WS_VISIBLE |
+    WS_TABSTOP |
+    WS_CLIPCHILDREN,
+    0,
+    0,
+    0,
+    0,
     hwnd,
     nullptr,
     hInstance,
     nullptr
   );
+
   if (hwndScintilla == nullptr) {
     MessageBoxW(
       hwnd,
@@ -113,10 +440,12 @@ int WINAPI wWinMain(
       MB_OK | MB_ICONERROR
     );
 
+    FreeLibrary(hmod);
     return 0;
   }
 
-  // DirectWrite
+
+  // Use DirectWrite for text rendering.
   SendMessageW(
     hwndScintilla,
     SCI_SETTECHNOLOGY,
@@ -124,32 +453,78 @@ int WINAPI wWinMain(
     0
   );
 
-  // 余白を設定
-  SendMessageW(hwndScintilla, SCI_SETMARGINWIDTHN, 0, 40);
 
-  // 行番号を表示
-  SendMessageW(hwndScintilla, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+  // Show line numbers.
+  SendMessageW(
+    hwndScintilla,
+    SCI_SETMARGINWIDTHN,
+    0,
+    40
+  );
 
-  // フォントを設定
-  SendMessageW(hwndScintilla, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Cascadia Code");
-
-  // フォントサイズを設定
-  SendMessageW(hwndScintilla, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
-
-  // フォントの設定を全文に適用
-  SendMessageW(hwndScintilla, SCI_STYLECLEARALL, 0, 0);
-
-  
+  SendMessageW(
+    hwndScintilla,
+    SCI_SETMARGINTYPEN,
+    0,
+    SC_MARGIN_NUMBER
+  );
 
 
+  // Set the editor font.
+  SendMessageW(
+    hwndScintilla,
+    SCI_STYLESETFONT,
+    STYLE_DEFAULT,
+    (LPARAM)"Cascadia Code"
+  );
+
+  SendMessageW(
+    hwndScintilla,
+    SCI_STYLESETSIZE,
+    STYLE_DEFAULT,
+    12
+  );
+
+  SendMessageW(
+    hwndScintilla,
+    SCI_STYLECLEARALL,
+    0,
+    0
+  );
+
+
+  // Use spaces instead of tabs.
+  SendMessageW(
+    hwndScintilla,
+    SCI_SETUSETABS,
+    FALSE,
+    0
+  );
+
+  // Set the tab width to 2 spaces.
+  SendMessageW(
+    hwndScintilla,
+    SCI_SETTABWIDTH,
+    2,
+    0
+  );
+
+
+  // Show the main window.
   ShowWindow(hwnd, nCmdShow);
 
+  // Give keyboard focus to the editor.
+  SetFocus(hwndScintilla);
+
+
+  // Message loop.
   MSG msg = {};
 
   while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
+
 
   FreeLibrary(hmod);
 
