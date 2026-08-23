@@ -1,6 +1,8 @@
 ﻿#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+HWND hwndScintilla = nullptr;
+
 LRESULT CALLBACK WindowProc(
   HWND hwnd,
   UINT uMsg,
@@ -20,6 +22,18 @@ LRESULT CALLBACK WindowProc(
 
       EndPaint(hwnd, &ps);
       return 0;
+    }
+    case WM_SIZE: {
+      if (hwndScintilla != nullptr) {
+        MoveWindow(
+          hwndScintilla,
+          0, 0,
+          LOWORD(lParam),
+          HIWORD(lParam),
+          TRUE
+        );
+        return 0;
+      }
     }
   }
 
@@ -67,7 +81,7 @@ int WINAPI wWinMain(
     MessageBoxW(
       hwnd,
       L"The Scintilla DLL could not be loaded",
-      L"Error loading Scintilla",
+      L"Error",
       MB_OK | MB_ICONERROR
     );
 
@@ -75,13 +89,13 @@ int WINAPI wWinMain(
   }
 
   // Scintilla editor
-  HWND hwndScintilla = CreateWindowExW(
+  hwndScintilla = CreateWindowExW(
     0,
     L"Scintilla",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_CLIPCHILDREN,
-    10, 10,
-    500, 400,
+    0, 0,
+    0, 0,
     hwnd,
     nullptr,
     hInstance,
