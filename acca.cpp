@@ -1,6 +1,8 @@
 ﻿#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "include/Scintilla.h"
+
 HWND hwndScintilla = nullptr;
 
 LRESULT CALLBACK WindowProc(
@@ -41,6 +43,7 @@ LRESULT CALLBACK WindowProc(
 }
 
 
+// エントリーポイント
 int WINAPI wWinMain(
   HINSTANCE hInstance,
   HINSTANCE,
@@ -49,16 +52,14 @@ int WINAPI wWinMain(
 ) {
   const wchar_t CLASS_NAME[] = L"acca";
 
-  // Set up the window class.
+  // ウィンドウクラスを登録
   WNDCLASSW wc = {};
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
-
-  // Register the window class with Windows.
   RegisterClassW(&wc);
 
-  // Main window
+  // メインウィンドウを作成
   HWND hwnd = CreateWindowExW(
     0,                              // Extended window style
     CLASS_NAME,                     // Window class name
@@ -75,7 +76,7 @@ int WINAPI wWinMain(
   if (hwnd == nullptr) return 0;
 
 
-  // Scintilla DLL
+  // Scintilla DLLをロード
   HMODULE hmod = LoadLibraryW(L"Scintilla.dll");
   if (hmod == nullptr) {
     MessageBoxW(
@@ -88,7 +89,7 @@ int WINAPI wWinMain(
     return 0;
   }
 
-  // Scintilla editor
+  // Scintilla editorを作成
   hwndScintilla = CreateWindowExW(
     0,
     L"Scintilla",
@@ -112,6 +113,12 @@ int WINAPI wWinMain(
     return 0;
   }
 
+  // 行番号を表示
+  SendMessageW(hwndScintilla, SCI_SETMARGINWIDTHN, 0, 40);
+  SendMessageW(hwndScintilla, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
+  SendMessageW(hwndScintilla, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
+  SendMessageW(hwndScintilla, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
+  SendMessageW(hwndScintilla, SCI_STYLECLEARALL, 0, 0);
 
   ShowWindow(hwnd, nCmdShow);
 
