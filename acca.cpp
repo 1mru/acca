@@ -113,12 +113,31 @@ int WINAPI wWinMain(
     return 0;
   }
 
-  // 行番号を表示
+  // DirectWrite
+  SendMessageW(
+    hwndScintilla,
+    SCI_SETTECHNOLOGY,
+    SC_TECHNOLOGY_DIRECTWRITERETAIN,
+    0
+  );
+
+  // 余白を設定
   SendMessageW(hwndScintilla, SCI_SETMARGINWIDTHN, 0, 40);
+
+  // 行番号を表示
   SendMessageW(hwndScintilla, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
-  SendMessageW(hwndScintilla, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Consolas");
+
+  // フォントを設定
+  SendMessageW(hwndScintilla, SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)"Cascadia Code");
+
+  // フォントサイズを設定
   SendMessageW(hwndScintilla, SCI_STYLESETSIZE, STYLE_DEFAULT, 12);
+
+  // フォントの設定を全文に適用
   SendMessageW(hwndScintilla, SCI_STYLECLEARALL, 0, 0);
+
+  
+
 
   ShowWindow(hwnd, nCmdShow);
 
