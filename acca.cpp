@@ -1,4 +1,7 @@
-﻿#define WIN32_LEAN_AND_MEAN
+﻿// acca - Simple source code editor
+// Win32 API + Scintilla
+
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "include/Scintilla.h"
