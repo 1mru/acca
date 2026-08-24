@@ -1,6 +1,8 @@
 ﻿// acca - Simple source code editor
 // Win32 API + Scintilla
 
+#define _WIN32_WINNT 0x0A00
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -43,6 +45,11 @@ int WINAPI wWinMain(
   PWSTR,
   int nCmdShow
 ) {
+
+  SetProcessDpiAwarenessContext(
+    DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+  );
+
   const wchar_t CLASS_NAME[] = L"acca";
 
   // Register window class.
